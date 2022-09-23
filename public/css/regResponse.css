@@ -1,0 +1,79 @@
+body {
+    padding: 40px 0;
+    background: #EBF0F5;
+    user-select: none;
+    width: 95vw;
+    height: 80vh;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+
+h1 {
+    font-family: "Nunito Sans", "Helvetica Neue", sans-serif;
+    font-weight: 900;
+    font-size: 40px;
+}
+
+
+.failureColor{
+    color: #b04b4b;
+}
+.successColor{
+    color: #88B04B;
+}
+
+
+p {
+    color: #404F5E;
+    font-family: "Nunito Sans", "Helvetica Neue", sans-serif;
+    font-size: 20px;
+    margin: 10px 0;
+}
+
+
+i {
+    font-size: 100px;
+    line-height: 200px;
+    margin-left: -15px;
+}
+
+
+.checkmark {
+    /* height: 50%; */
+    /* aspect-ratio : 1 / 1; */
+    width: 50%;
+    height: 50%;
+    display: flex;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: #F8FAF5;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.card {
+    width: 25%;
+    padding: 30px;
+    background: white;
+    border-radius: 10%;
+    box-shadow: 0 2px 3px #C8D0D8;
+    /* margin: 10% auto 0 auto; */
+}
+
+
+.backBtn {
+    border: none;
+    font-size: 15px;
+    font-family: "Nunito Sans", "Helvetica Neue", sans-serif;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+
+
+.backBtn:hover {
+    cursor: pointer;
+    box-shadow: rgb(167, 167, 167) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
+}

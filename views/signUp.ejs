@@ -1,0 +1,28 @@
+<%- include("header") -%>
+<div class="common-container">
+    <div class="container signupPage">
+        <h2>Sign Up to Lists</h2>
+        <form action="/signup" method="post">
+        
+                        <input class="inputBar" name="fname"  placeholder="First name"       autocomplete="off" type="text" required autofocus>
+                        <input class="inputBar" name="lname"  placeholder="Last name"        autocomplete="off" type="text" required>
+                        <input class="inputBar" name="email"  placeholder="E-mail"           autocomplete="off" type="text" required>
+                        <input class="inputBar" name="cemail" placeholder="Confirm e-mail"   autocomplete="off" type="text" required>
+                        <input class="inputBar" name="pass"   placeholder="password"         autocomplete="off" type="text" required>
+                        <input class="inputBar" name="cpass"  placeholder="Confirm password" autocomplete="off" type="text" required>
+                        <input class="inputBar" name="dop"    placeholder="Date of birth" type="text" onfocus="(this.type = 'date')" required>
+                        <br>
+                        <button class="signBtn" name="btn" value="signup" type="submit">Sign up</button>
+                    </div>
+            </form>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+<%- include("footer") %> 

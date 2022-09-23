@@ -1,0 +1,45 @@
+body {
+    font-size: 1.3rem;    
+    user-select: none;
+    background-color: #444141;
+    background-image: url("../images/bg/bg2.jpg");
+    font-family: 'Merienda', arial, sans-serif;
+}
+
+.common-container {
+    width: 95vw;
+    height: 95vh;
+    margin: 0;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.copyRights {
+    font-size: 1rem;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.homeBtn {
+    font-size: 28px;
+    /* font-family: 'Merienda', arial, sans-serif; */
+    border: none;
+    width: 40%;
+    margin: 20px 0;
+}
+
+.homeBtn:hover {
+    cursor: pointer;
+    box-shadow: rgb(167, 167, 167) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
+}
+
+h2 {
+    font-size: 35px;
+}
+
+.signinFailedClass{
+    color:red;
+    border: 1px solid red;
+}

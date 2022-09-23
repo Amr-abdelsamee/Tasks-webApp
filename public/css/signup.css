@@ -1,0 +1,34 @@
+.signupPage{
+    min-height: fit-content;
+    height: 600px;
+}
+
+.signBtn{
+    border: none;
+    font-size: 20px;
+    padding: 0 10px;
+    margin-top: 25px;
+    border-radius: 20px;
+    background-color: #f8f9fa;
+    font-family: 'Merienda', arial, sans-serif;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+
+.signBtn:hover{
+    cursor: pointer;
+    box-shadow: rgb(167, 167, 167) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
+}
+
+.signinFailedClass{
+    border: 2px solid red;
+}
+.signinFailedClass:focus{
+    box-shadow: inset 0 -3px 0 0 red;
+}
+
+.signinMessage{
+    margin: 0;
+    color: red;
+    font-size: 15px;
+
+}

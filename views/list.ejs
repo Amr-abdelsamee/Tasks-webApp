@@ -1,0 +1,41 @@
+<%- include("header") -%>
+    <h1>
+        <%= today %>
+    </h1>
+
+    <div class="container listsPage">
+
+        <h2 class="listH2">To do list</h2>
+        <form action="/" method="post">
+            <button class="signOutBtn" type="submit" name="signout">Sign out</button>
+        </form>
+        <form action="/list" method="post">
+            <div class="addSec">
+                <input class="inputBar textBar" name="newTask" placeholder="New Task" autocomplete="off" type="text"
+                    autofocus>
+                <input class="inputBar dateBar" name="newTaskDate" placeholder="Due date" type="text"
+                    onfocus="(this.type = 'date')">
+                <button id="addBtn" name="btn" value="add" type="submit">+</button>
+            </div>
+            <% for(var i=0; i<tasks.length; i++){ %>
+                <div class="task">
+                    <input class="checkmark" type="checkbox">
+                    <span class="taskText">
+                        <%= tasks[i].task %>
+                            <% if(tasks[i].dueDate !="" ){%>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;due: <%= tasks[i].dueDate %>
+                                    <% } %>
+                    </span>
+                    <br><span class="createdTime"> created: <%=tasks[i].createdTime%></span>
+                    <button class="remBtn" tabindex="-1" name="btn" value=<%=[i] %> type="submit">-</button>
+                </div>
+                <% } %>
+
+
+
+        </form>
+    </div>
+
+
+
+    <%- include("footer") %>
