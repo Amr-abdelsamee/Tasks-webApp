@@ -3,7 +3,8 @@ require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const favicon = require('serve-favicon'); // for icon
-const encrypt = require("mongoose-encryption");
+// const encrypt = require("mongoose-encryption");
+const md5 = require("md5")
 // ---------------------------------------------< Database section >--------------------------------------------------------
 
 const mongoose = require("mongoose");
@@ -56,7 +57,7 @@ const userSchema = new mongoose.Schema({
     tasksList: [taskSchema],
 });
 
-userSchema.plugin(encrypt, { secret: process.env.ENC_Key, encryptedFields:['password','tasksList']});
+// userSchema.plugin(encrypt, { secret: process.env.ENC_Key, encryptedFields:['password','tasksList']});
 
 
 
@@ -105,7 +106,7 @@ app.route("/signin")
     })
     .post(function (req, res) {
         let enterdEmail = req.body.email;
-        let enteredPassword = req.body.pass;
+        let enteredPassword = md5(req.body.pass);
         console.log(new Date() + "sign in try with:: email: " + enterdEmail + ":: password: " + enteredPassword)
         Users.findOne({ email: enterdEmail }, function (err, foundUser) {
             if (err) {
@@ -133,7 +134,7 @@ app.route("/signup")
             fname: req.body.fname,
             lnamme: req.body.lname,
             email: req.body.email,
-            password: req.body.pass,
+            password: md5(req.body.pass),
             DOB: req.body.dop
         });
 
