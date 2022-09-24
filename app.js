@@ -8,9 +8,7 @@ const passportLocalMongoose = require("passport-local-mongoose");
 
 const favicon = require('serve-favicon'); // for icon
 const chalk = require("chalk") // for console colors
-const md5 = require("md5"); // for hashing
-const bcrypt = require("bcrypt"); // for hashing and salting
-const SALT_ROUNDS = 10; // salting rounds
+
 
 const app = express();
 
@@ -72,7 +70,7 @@ const userSchema = new mongoose.Schema({
     tasksList: [taskSchema],
 });
 
-// userSchema.plugin(encrypt, { secret: process.env.ENC_Key, encryptedFields:['password','tasksList']});
+
 userSchema.plugin(passportLocalMongoose);
 
 
@@ -143,7 +141,6 @@ app.route("/signin")
                         }
                     }
                 });
-
             }
         });
     });
@@ -160,7 +157,6 @@ app.route("/signout")
             }
             res.redirect('/');
         });
-
     })
 // ---------------------------------------------< End of Sign out route section >-------------------------------------------------------
 
