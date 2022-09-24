@@ -1,10 +1,33 @@
 
-require('dotenv').config();
+require('dotenv').config(); // for .env file
 const express = require("express");
 const bodyParser = require("body-parser");
+const session = require("express-session");
+const passport = require("passport");
+const passportLocalMongoose = require("passport-local-mongoose");
+
 const favicon = require('serve-favicon'); // for icon
-// const encrypt = require("mongoose-encryption");
-const md5 = require("md5")
+const chalk = require("chalk") // for console colors
+const md5 = require("md5"); // for hashing
+const bcrypt = require("bcrypt"); // for hashing and salting
+const SALT_ROUNDS = 10; // salting rounds
+
+const app = express();
+
+app.set('view engine', 'ejs');
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(favicon(__dirname + '/public/images/favicon.ico')); // favicon
+
+app.use(session({
+    secret: "secrettest",
+    resave: false,
+    saveUninitialized: false,
+
+}))
+
+app.use(passport.initialize());
+app.use(passport.session());
 // ---------------------------------------------< Database section >--------------------------------------------------------
 
 const mongoose = require("mongoose");
@@ -19,7 +42,7 @@ const taskTypeSchema = new mongoose.Schema({
 const taskSchema = new mongoose.Schema({
     name: {
         type: String,
-        require: true,
+        required: true,
     },
     done: {
         type: Boolean,
@@ -38,19 +61,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    lnamme: {
+    lname: {
         type: String,
         required: true,
     },
-    email: {
-        type: String,
-        required: true,
-    },
-    password: {
-        type: String,
-        required: true,
-    },
-    DOB: {
+    username: { // email
         type: String,
         required: true,
     },
@@ -58,23 +73,20 @@ const userSchema = new mongoose.Schema({
 });
 
 // userSchema.plugin(encrypt, { secret: process.env.ENC_Key, encryptedFields:['password','tasksList']});
-
+userSchema.plugin(passportLocalMongoose);
 
 
 const Users = mongoose.model("User", userSchema);
-const Task = mongoose.model("Task", taskSchema);
-const Type = mongoose.model("Type", taskTypeSchema);
+const Tasks = mongoose.model("Task", taskSchema);
+const Types = mongoose.model("Type", taskTypeSchema);
 
+passport.use(Users.createStrategy());
+passport.serializeUser(Users.serializeUser());
+passport.deserializeUser(Users.deserializeUser());
 // -------------------------------------------< End of Database Section >-------------------------------------------------------
-const app = express();
 
-app.set('view engine', 'ejs');
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public"));
-app.use(favicon(__dirname + '/public/images/favicon.ico')); // favicon
 
-var totalTasks = [];
-
+// ---------------------------------------------< Root route section >--------------------------------------------------------
 app.route("/")
     .get(function (req, res) {
         res.render("index")
@@ -91,40 +103,70 @@ app.route("/")
             res.redirect("/")
         }
     });
+// ---------------------------------------------< End of root route section >---------------------------------------------------
 
 
 
+// ---------------------------------------------< Sign in route section >-------------------------------------------------------
 app.route("/signin")
-    // TODO: if user enter email or password wrong or not in the data base should add these values:
-    // TODO: signinFailedClass: "signinFailedClass",
-    // TODO: message: "Wrong email or password!!"
     .get(function (req, res) {
         res.render("signIn", {
-            signinFailedClass: "",
-            message: ""
+            signinFailedClass: typeof req.session['class'] !== "undefined" ? req.session['class'] : "",
+            message: typeof req.session['mess'] !== "undefined" ? req.session['mess'] : "",
         })
     })
     .post(function (req, res) {
-        let enterdEmail = req.body.email;
-        let enteredPassword = md5(req.body.pass);
-        console.log(new Date() + "sign in try with:: email: " + enterdEmail + ":: password: " + enteredPassword)
-        Users.findOne({ email: enterdEmail }, function (err, foundUser) {
-            if (err) {
-                console.log("Failed to sign in !!")
-                console.log(err)
-            } else {
-                if (foundUser) {
-                    if (foundUser.password === enteredPassword) {
-                        res.redirect("/list")
-                    }
-                }
-            }
+        const user = new Users({
+            fname: " ",
+            lname: " ",
+            username: req.body.username,
+            password: req.body.password,
         })
-        //TODO: add route if the user enter email not in the database
+        console.log(chalk.blue((new Date() + "Login try ::" + user)))
+        req.login(user, function (err) {
+            if (err) {
+                console.log(err);
+                res.redirect('/list');
+            } else {
+                console.log(chalk.blue.bgWhite(new Date() + ":: Login succeeded!"));
+                Users.findOne({ username: user.username }, function (err, foundUser) {
+                    if (err) {
+                        console.log("Failed to llocate tthe username: " + user.username);
+                        console.log(err)
+                    } else {
+                        if (foundUser) {
+                            res.redirect('/' + foundUser.fname + ' ' + foundUser.lname + '/list');
+                        } else {
+                            req.session['class'] = 'signinFailedClass';
+                            req.session['mess'] = 'Wrong email or password!!';
+                            res.redirect("/signin")
+                        }
+                    }
+                });
+
+            }
+        });
     });
+// -------------------------------------------< End of sign in route section >-------------------------------------------------
 
 
 
+// ---------------------------------------------< Sign out route section >-------------------------------------------------------
+app.route("/signout")
+    .post(function (req, res) {
+        req.logout(function (err) {
+            if (err) {
+                console.log(err);
+            }
+            res.redirect('/');
+        });
+
+    })
+// ---------------------------------------------< End of Sign out route section >-------------------------------------------------------
+
+
+
+// ---------------------------------------------< Sign up route section >-------------------------------------------------------
 app.route("/signup")
     .get(function (req, res) {
         res.render("signUp")
@@ -132,67 +174,92 @@ app.route("/signup")
     .post(function (req, res) {
         const user = new Users({
             fname: req.body.fname,
-            lnamme: req.body.lname,
-            email: req.body.email,
-            password: md5(req.body.pass),
-            DOB: req.body.dop
-        });
-
-        console.log("New user data: " + user)
-        Users.create(user, function (err) {
+            lname: req.body.lname,
+            username: req.body.username,
+        })
+        console.log(chalk.blue.bgWhite((new Date() + "Sign up try :: data: " + req.body)))
+        Users.register(user, req.body.password, function (err, regUser) {
             if (err) {
+                console.log(chalk.red.bgWhite("Sign up failed!"));
+                console.log(err);
                 res.sendFile(__dirname + "/failure.html")
             } else {
-                res.sendFile(__dirname + "/success.html")
-                console.log(new Date() + ":: New user added to the database!")
+                console.log(chalk.green.bgWhite("Sign up succeeded!"));
+                passport.authenticate("local")(req, res, function () {
+                    res.sendFile(__dirname + "/success.html")
+                });
             }
         })
     });
+// -------------------------------------------< End of sign up route section >-------------------------------------------------
 
 
-
-app.route("/list")
+// ---------------------------------------------------< Lists section >--------------------------------------------------------
+app.route("/:userName/list")
     .get(function (req, res) {
-        let date = new Date();
-        const dateOpttions = {
-            weekday: 'long',
-            day: 'numeric',
-            year: 'numeric',
-            month: 'long'
-        }
-        let today = date.toLocaleDateString("en-US", dateOpttions) // making a custome date
-        res.render("list", {
-            today: today,
-            tasks: totalTasks
-        })
-    })
-    .post(function (req, res) {
-        if (req.body.btn == 'add') {
-            if (req.body.newTask.trim() != "") {
-                let date = new Date();
-                const dateOpttions = {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long'
-                }
-                let taskCreatedTime = + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + ' ' + date.toLocaleString("en-US", dateOpttions)
-                let newTask = {
-                    task: req.body.newTask,
-                    createdTime: taskCreatedTime,
-                    dueDate: req.body.newTaskDate,
-                }
-                totalTasks.push(newTask);
-                console.log(date + "::New task added: " + newTask.task);
-            }
+        if (req.isAuthenticated()) {
+            res.render("list", {
+                user: req.user.fname,
+                tasks: req.user.tasksList,
+            })
         }
         else {
-            let index = Number(req.body.btn);
-            console.log("Task " + totalTasks[index].task + " removed");
-            totalTasks.splice(index, 1)
-            console.log("all left tasks: " + totalTasks)
+            res.redirect("/signin")
         }
-        res.redirect("/list")
+    })
+// ------------------------------------------------< End of lists section >---------------------------------------------------
+
+
+
+// ------------------------------------------------< Submit section >---------------------------------------------------
+app.route("/submit")
+    .post(function (req, res) {
+        if (req.isAuthenticated()) {
+            if (req.body.btn == 'add') {
+                if (req.body.newTask.trim() != "") {
+                    // ---< getting the date and formatting it >---
+                    let date = new Date();
+                    const dateOpttions = {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long'
+                    }
+                    let taskCreatedTime = + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + ' ' + date.toLocaleString("en-US", dateOpttions)
+                    // ----------------------------------
+                    let newTask = new Tasks({
+                        name: req.body.newTask,
+                        done: false,
+                        dueDate: taskCreatedTime,
+                        createdDate: req.body.newTaskDate,
+                    })
+                    Users.findOneAndUpdate({ username: req.user.username }, { $push: { tasksList: newTask } }, function (err) {
+                        if (err) {
+                            console.log("Failed to add the new task!");
+                            console.log(err)
+                        } else {
+                            console.log("New task added successfully");
+                        }
+                    });
+                }
+            }
+            else {
+                let targetedTask = req.body.btn;
+                Users.findOneAndUpdate({ username: req.user.username }, { $pull: { tasksList: { name: targetedTask } } }, function (err) {
+                    if (err) {
+                        console.log("Failed to remove the task!");
+                        console.log(err)
+                    } else {
+                        console.log("Task removed successfully");
+                    }
+                });
+            }
+            res.redirect('/' + req.user.fname + ' ' + req.user.lname + '/list')
+        }
+        else {
+            res.redirect("/signin")
+        }
     });
+// ------------------------------------------------< End of submit section >---------------------------------------------------
 
 
 
