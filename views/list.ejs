@@ -1,15 +1,15 @@
 <%- include("header") -%>
     <h1>
-        <%= today %>
+        Welcome,&nbsp;<%= user %>
     </h1>
 
     <div class="container listsPage">
 
         <h2 class="listH2">To do list</h2>
-        <form action="/" method="post">
+        <form action="/signout" method="post">
             <button class="signOutBtn" type="submit" name="signout">Sign out</button>
         </form>
-        <form action="/list" method="post">
+        <form action="/submit" method="post">
             <div class="addSec">
                 <input class="inputBar textBar" name="newTask" placeholder="New Task" autocomplete="off" type="text"
                     autofocus>
@@ -21,13 +21,13 @@
                 <div class="task">
                     <input class="checkmark" type="checkbox">
                     <span class="taskText">
-                        <%= tasks[i].task %>
+                        <%= tasks[i].name %>
                             <% if(tasks[i].dueDate !="" ){%>
                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;due: <%= tasks[i].dueDate %>
                                     <% } %>
                     </span>
-                    <br><span class="createdTime"> created: <%=tasks[i].createdTime%></span>
-                    <button class="remBtn" tabindex="-1" name="btn" value=<%=[i] %> type="submit">-</button>
+                    <br><span class="createdTime"> created: <%=tasks[i].createdDate%></span>
+                    <button class="remBtn" tabindex="-1" name="btn" value=<%=tasks[i].name %> type="submit">-</button>
                 </div>
                 <% } %>
 
